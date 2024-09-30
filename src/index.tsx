@@ -23,12 +23,12 @@ const RnAndroidSmsRetriever = RnAndroidSmsRetrieverModule
       }
     );
 
-export async function getOtp(otpLength: number): Promise<number> {
-  return await RnAndroidSmsRetriever.getOtp(otpLength);
+export async function getOtp(otpLength: number, phoneNumber: String | null): Promise<number> {
+  return await RnAndroidSmsRetriever.getOtp(otpLength, phoneNumber);
 }
 
-export async function getSms(): Promise<number> {
-  return await RnAndroidSmsRetriever.getSms();
+export async function getSms(phoneNumber: String | null): Promise<number> {
+  return await RnAndroidSmsRetriever.getSms(phoneNumber);
 }
 
 export enum SMSRetrieverErrors {
@@ -37,4 +37,5 @@ export enum SMSRetrieverErrors {
   CONSENT_DENIED = 'CONSENT_DENIED',
   RECEIVER_EXCEPTION = 'RECEIVER_EXCEPTION',
   REGEX_MISMATCH = 'REGEX_MISMATCH',
+  NULL_SMS_EXCEPTION = 'NULL_SMS_EXCEPTION',
 }
