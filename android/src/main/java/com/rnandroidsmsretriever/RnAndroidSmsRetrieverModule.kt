@@ -94,10 +94,9 @@ class RnAndroidSmsRetrieverModule internal constructor(
             m?.find()?.let {
               if (it) {
                 Logger.debug(TAG, "onActivityResult_match: $m")
-
-                consentRequest.promise.resolve(m.group(0) as String)
-                reactContext.unregisterReceiver(smsVerificationReceiver)
-              } else {
+                onSuccess(m.group(0) as String)
+              }
+              else {
                 Logger.debug(TAG, "onActivityResult_no_match: $m")
                 onError(
                   "The message received doesn't include the otp length requested",
@@ -110,11 +109,19 @@ class RnAndroidSmsRetrieverModule internal constructor(
 
           is SmsRequest -> {
             Logger.debug(TAG, "onActivityResult_SmsRequest: $message")
-            consentRequest.promise.resolve(message)
-            reactContext.unregisterReceiver(smsVerificationReceiver)
+            message?.let {
+              onSuccess(it)
+            } ?: run {
+              onError(
+                "The sms body is null",
+                ConsentError.NullSmsException.code,
+                Throwable(ConsentError.NullSmsException.code),
+              )
+            }
           }
         }
-      } else {
+      }
+      else {
         Logger.debug(TAG, "onActivityResult_match: kkk")
 
         onError(
@@ -130,42 +137,74 @@ class RnAndroidSmsRetrieverModule internal constructor(
 
   }
 
+  /**
+   * Retrieves the OTP (One Time Password) sent by the provided phone number(or any phone number in case it's null) and OTP length.
+   *
+   * @param otpLength The desired length of the OTP to be retrieved.
+   * @param phoneNumber The phone number from which the OTP is being sent. Can be null if not provided.
+   * @param promise A Promise object that is used to resolve or reject the result of the OTP retrieval process.
+   *
+   */
   @ReactMethod
-  override fun getOtp(otpLength: Int, promise: Promise) {
+  override fun getOtp(otpLength: Int, phoneNumber: String?, promise: Promise) {
     // We firstly assign our consent request
     this.consentRequest = OTPRequest(
       promise = promise,
       otpLength = otpLength,
     )
     // Then initialize the UserConsent
-    initializeConsent()
+    initializeConsent(phoneNumber = phoneNumber)
   }
 
+  /**
+   * Retrieves the full SMS message sent by the provided phone number(or any phone number in case it's null).
+   *
+   * @param phoneNumber The phone number from which the OTP is being sent. Can be null if not provided.
+   * @param promise A Promise object that is used to resolve or reject the result of the OTP retrieval process.
+   *
+   */
   @ReactMethod
-  override fun getSms(promise: Promise) {
-    Logger.debug("SmsRetrieverModule", "Initiated start listening")
+  override fun getSms(phoneNumber: String?, promise: Promise) {
     // We firstly assign our consent request
     this.consentRequest = SmsRequest(
       promise = promise,
     )
     // Then initialize the UserConsent
-    initializeConsent()
+    initializeConsent(phoneNumber = phoneNumber)
   }
 
+  /**
+   * A function that resolve the promise with the retrieved response and unregister the current receiver.
+   *
+   * @param response The response we got from the receiver (OTP or the SMS)
+   */
   private fun onSuccess(response: String) {
     consentRequest.promise.resolve(response)
     unregisterReceiver()
   }
 
-  private fun onError(var1: String, var2: String, var3: Throwable) {
-    consentRequest.promise.reject(var1, var2, var3)
+  /**
+   * A function that reject the promise with the caught error and unregister the current receiver.
+   *
+   * @param errorBody The error body to be sent to the caller
+   * @param errorCode The error's code to be sent to the caller
+   * @param throwable The exception thrown to be sent to the caller
+   */
+  private fun onError(errorBody: String, errorCode: String, throwable: Throwable) {
+    consentRequest.promise.reject(errorBody, errorCode, throwable)
     unregisterReceiver()
   }
 
-  private fun initializeConsent() {
-    registerReceiver()
+  /**
+   * Initialize consent client with the provided mobile number(in case not null) and register the receiver
+   *
+   * @param phoneNumber The phone number from which the OTP is being sent.
+   */
+  private fun initializeConsent(phoneNumber: String? = null) {
+    Logger.debug("SmsRetrieverModule", "initializeConsent with phone number $phoneNumber")
     val client = SmsRetriever.getClient(reactContext)
-    client.startSmsUserConsent(null)
+    client.startSmsUserConsent(phoneNumber)
+    registerReceiver()
   }
 
   @SuppressLint("UnspecifiedRegisterReceiverFlag")
@@ -198,7 +237,7 @@ class RnAndroidSmsRetrieverModule internal constructor(
       try {
         reactContext.unregisterReceiver(smsVerificationReceiver)
       } catch (e: Exception) {
-        var msg = e.message
+        val msg = e.message
         Logger.debug(TAG, "initializeConsent_exception_unhandled: $msg ")
         consentRequest.promise.reject(
           "Receiver Exception",

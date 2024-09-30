@@ -1,6 +1,6 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, Button, Pressable } from 'react-native';
+import { StyleSheet, View, Text, Button, Pressable, TextInput } from 'react-native';
 import { getOtp, getSms, SMSRetrieverErrors } from 'rn-android-sms-retriever';
 
 enum Tabs {
@@ -11,8 +11,10 @@ export default function App() {
   const [activeTab, setActiveTab] = useState(Tabs.Otp);
   const [content, setContent] = useState('');
   const [reinitializeVisible, setReinitializeVisible] = useState(false);
+  const [phoneNumber, onChangePhoneNumber] = useState('');
 
   const startReceiver = () => {
+    setContent('');
     activeTab === Tabs.Otp ? startOtp() : startSms();
   };
 
@@ -23,7 +25,7 @@ export default function App() {
   const startOtp = async () => {
     setReinitializeVisible(false);
     try {
-      const result = await getOtp(6);
+      const result = await getOtp(6, phoneNumber ? phoneNumber : null);
       setContent(result.toString());
       setReinitializeVisible(true);
     } catch (e: any) {
@@ -38,7 +40,7 @@ export default function App() {
   const startSms = async () => {
     setReinitializeVisible(false);
     try {
-      const result = await getSms();
+      const result = await getSms(phoneNumber ? phoneNumber : null);
       setContent(result.toString());
       setReinitializeVisible(true);
     } catch (e) {
@@ -71,10 +73,17 @@ export default function App() {
       </View>
 
       <View style={styles.sectionContainer}>
-        {reinitializeVisible && (
-          <Button title="Reinitialize Receiver" onPress={startReceiver} />
-        )}
 
+        <TextInput
+          style={styles.input}
+          onChangeText={onChangePhoneNumber}
+          value={phoneNumber}
+          placeholder='Phone Number'
+        />
+        <Text style={styles.inputHelper}>This is the phone number that will send the OTP</Text>
+
+        <Button title="Reinitialize Receiver" onPress={startReceiver} />
+        
         <Text style={styles.title}>
           {content ? `Received ${activeTab}` : `Waiting for ${activeTab}`}
         </Text>
@@ -107,6 +116,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '800',
     color: '#000',
+    marginTop: 16,
   },
   descriptionContainer: {
     borderWidth: 1,
@@ -119,5 +129,15 @@ const styles = StyleSheet.create({
     marginTop: 64,
     fontSize: 18,
     fontWeight: '400',
+  },
+  input: {
+    height: 40,
+    marginTop: 20,
+    borderWidth: 1,
+    padding: 10,
+  },
+  inputHelper: {
+    marginTop: 8,
+    marginBottom: 20,
   },
 });

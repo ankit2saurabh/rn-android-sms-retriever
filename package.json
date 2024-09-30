@@ -158,5 +158,8 @@
     "name": "RNRnAndroidSmsRetrieverSpec",
     "type": "modules",
     "jsSrcsDir": "src"
+  },
+  "dependencies": {
+    "rn-dynamic-app-icon": "^0.6.1"
   }
 }

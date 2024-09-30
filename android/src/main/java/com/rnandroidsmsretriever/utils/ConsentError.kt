@@ -6,4 +6,5 @@ sealed class ConsentError(val code: String) {
   object Denied: ConsentError(code = "CONSENT_DENIED")
   object ReceiverException: ConsentError(code = "RECEIVER_EXCEPTION")
   object RegexMismatch: ConsentError(code = "REGEX_MISMATCH")
+  object NullSmsException: ConsentError(code = "NULL_SMS_EXCEPTION")
 }
