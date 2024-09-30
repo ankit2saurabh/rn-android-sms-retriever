@@ -1,7 +1,7 @@
 {
-  "name": "rn-android-sms-retriever",
-  "version": "0.3.1",
-  "description": "A react native wrapper for the SMS User Consent API to request user consent to read a single SMS verification message. If the user consents, the API returns the text of the message, from which you can get the verification code and complete the verification process.",
+  "name": "rn-android-otp-retriever",
+  "version": "0.0.1",
+  "description": "A react native wrapper for the SMS User Consent API to request user consent to read a single SMS verification message sent by any phone number or from a specific phone number if required. \nIf the user consents, the API returns the text of the message, from which you can get the verification code and complete the verification process.",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
   "types": "lib/typescript/index.d.ts",
