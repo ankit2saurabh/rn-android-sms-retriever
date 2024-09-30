@@ -10,7 +10,6 @@ enum Tabs {
 export default function App() {
   const [activeTab, setActiveTab] = useState(Tabs.Otp);
   const [content, setContent] = useState('');
-  const [reinitializeVisible, setReinitializeVisible] = useState(false);
   const [phoneNumber, onChangePhoneNumber] = useState('');
 
   const startReceiver = () => {
@@ -23,29 +22,23 @@ export default function App() {
   }, [activeTab]);
 
   const startOtp = async () => {
-    setReinitializeVisible(false);
     try {
       const result = await getOtp(6, phoneNumber ? phoneNumber : null);
       setContent(result.toString());
-      setReinitializeVisible(true);
     } catch (e: any) {
       if (e.toString().includes(SMSRetrieverErrors.REGEX_MISMATCH)) {
         startOtp();
       } else {
-        setReinitializeVisible(true);
       }
     }
   };
 
   const startSms = async () => {
-    setReinitializeVisible(false);
     try {
       const result = await getSms(phoneNumber ? phoneNumber : null);
       setContent(result.toString());
-      setReinitializeVisible(true);
     } catch (e) {
       console.log(e);
-      setReinitializeVisible(true);
     }
   };
 
