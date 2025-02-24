@@ -23,11 +23,11 @@ const RnAndroidSmsRetriever = RnAndroidSmsRetrieverModule
       }
     );
 
-export async function getOtp(otpLength: number, phoneNumber: String | null): Promise<number> {
+export async function getOtp(otpLength: number, phoneNumber: string | null): Promise<number> {
   return await RnAndroidSmsRetriever.getOtp(otpLength, phoneNumber);
 }
 
-export async function getSms(phoneNumber: String | null): Promise<number> {
+export async function getSms(phoneNumber: string | null): Promise<number> {
   return await RnAndroidSmsRetriever.getSms(phoneNumber);
 }
 

@@ -212,12 +212,22 @@ class RnAndroidSmsRetrieverModule internal constructor(
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       try {
         val intentFilter = IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION)
-        reactContext.registerReceiver(
-          smsVerificationReceiver,
-          intentFilter,
-          SmsRetriever.SEND_PERMISSION,
-          Handler(Looper.getMainLooper())
-        )
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+           reactContext.registerReceiver(
+              smsVerificationReceiver,
+              intentFilter,
+              SmsRetriever.SEND_PERMISSION,
+              null,
+              Context.RECEIVER_EXPORTED
+          )
+        } else {
+          reactContext.registerReceiver(
+              smsVerificationReceiver,
+              intentFilter,
+              SmsRetriever.SEND_PERMISSION,
+              Handler(Looper.getMainLooper())
+          )
+        }
       } catch (e: Exception) {
         var msg = e.message
         if (!msg!!.contains("registered with differing handler", ignoreCase = true)) {

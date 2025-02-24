@@ -3,7 +3,7 @@ import { TurboModuleRegistry } from 'react-native';
 
 export interface Spec extends TurboModule {
   getOtp(otpLength: number): Promise<number>;
-  getOtp(otpLength: number, phoneNumber: String): Promise<number>;
+  getOtp(otpLength: number, phoneNumber: string): Promise<number>;
   getSms(): Promise<number>;
 }
 
