@@ -146,11 +146,11 @@ class RnAndroidSmsRetrieverModule internal constructor(
    *
    */
   @ReactMethod
-  override fun getOtp(otpLength: Int, phoneNumber: String?, promise: Promise) {
+  override fun getOtp(otpLength: Double, phoneNumber: String?, promise: Promise) {
     // We firstly assign our consent request
     this.consentRequest = OTPRequest(
       promise = promise,
-      otpLength = otpLength,
+      otpLength = otpLength.toInt(),
     )
     // Then initialize the UserConsent
     initializeConsent(phoneNumber = phoneNumber)
